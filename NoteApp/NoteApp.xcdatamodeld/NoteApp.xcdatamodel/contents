@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22E252" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Note" representedClassName="Note" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="NoteCollection" representedClassName="NoteCollection" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="uid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="arrayOfTextFields" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TextFields" inverseName="ownerOfTextField" inverseEntity="TextFields"/>
+    </entity>
+    <entity name="TextFields" representedClassName="TextFields" syncable="YES">
+        <attribute name="text" optional="YES" attributeType="String"/>
+        <relationship name="ownerOfTextField" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NoteCollection" inverseName="arrayOfTextFields" inverseEntity="NoteCollection"/>
+    </entity>
+</model>

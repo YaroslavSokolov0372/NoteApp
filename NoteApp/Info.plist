@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Lufga-ExtraLight.ttf</string>
+		<string>Lufga-Light.ttf</string>
+		<string>Lufga-Bold.ttf</string>
+		<string>Lufga-ExtraBold.ttf</string>
+		<string>Lufga-Medium.ttf</string>
+		<string>Lufga-Regular.ttf</string>
+		<string>Lufga-SemiBold.ttf</string>
+		<string>Lufga-Thin.ttf</string>
+	</array>
+</dict>
+</plist>
