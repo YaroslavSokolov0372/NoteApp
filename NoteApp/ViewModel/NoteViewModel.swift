@@ -10,7 +10,8 @@ import Foundation
 
 class noteViewModel: ObservableObject {
     @Published var text: String = ""
-    @Published var activeTool: toolBarItems = .plus
+//    @Published var activeTool: toolBarItems = .plus
+    @Published var canDraw: Bool = false
     
     @Published var shouldBold: Bool = true
 }

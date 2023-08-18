@@ -16,169 +16,172 @@ struct Line {
 }
 
 struct NoteView: View {
-//    @Binding var isPresented: Boo
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    @Environment(\.managedObjectContext) var viewContext
+    
+    
     @FetchRequest(sortDescriptors: []) var collections: FetchedResults<NoteCollection>
-    var notes: [String] = ["Hello World", "Named", "Style", "Collection"]
-    
-    @State var currentLine = Line()
-    @State var lines: [Line] = []
+    @Environment(\.managedObjectContext) var viewContext
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     
-    
-    @StateObject var noteVM: noteViewModel = noteViewModel()
-    var backgroundColor: Color
-    
-    @State var showPlus = true
+    var textFromNote: String
     @State var showCollections: Bool = false
-
+    @State var text: String = ""
+    @FocusState var texting: Bool
+    var background: String
+    
+    
+//    @State var saveIn: Bool = false
+    @State var toWhatCollectionSave: [NoteCollection] = []
+    var savedToWhatCollections: [NoteCollection]
+    
+//    @State var collectioins = [String]()
+//    var notes: [String] = ["Hello World", "Named", "Style", "Collection"]
+    
+//    init(text: String) {
+//
+//
+//    }
+    
+    
     
     var body: some View {
         NavigationView {
-            
             ZStack {
-                backgroundColor
+                Color(background)
                     .ignoresSafeArea()
-                
                 VStack {
-                    ScrollView(.vertical) {
-                        if showCollections {
-                            
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack {
-                                    ForEach(notes, id: \.self) { note in
-                                        Button {
-                                            
-                                        } label: {
-                                            Text(String(note))
-                                                .lufga(25, .light)
-                                                .foregroundColor(.white)
-                                            
+                    //MARK: -Collections
+                    if showCollections
+//                        || !collections.isEmpty
+                    {
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(collections, id: \.id) { collection in
+                                    Button {
+                                        if !toWhatCollectionSave.contains(collection) {
+                                            toWhatCollectionSave.append(collection)
+                                        } else {
+                                            if let indexToRemove = toWhatCollectionSave.firstIndex(of: collection) {
+                                                toWhatCollectionSave.remove(at: indexToRemove)
+                                            }
                                         }
-                                        .strokeBackground(padding: 15, cornerRadius: 30)
+                                    } label: {
+                                        Text(String(collection.name!))
+                                            .lufga(25, .light)
+                                            .strokeBackground(padding: 15, cornerRadius: 30)
+                                            .foregroundColor(.black)
+                                            .opacity(toWhatCollectionSave.contains(collection) ? 1 : 0.5)
                                     }
+                                    
                                 }
-                                .padding(.leading, 15)
-                                //                            .offset(y: showCollections ? 0 : -40)
-                                //                        .animation(Animation.default.delay(3), value: showCollections)
-                                
-                                //                        .transition(.move(edge: .top))
-                                //                        .id("one")
                             }
+                            .padding(.horizontal, 15)
+                        }
+                    }
+                    //MARK: -MainTextField
+                    TextField("Here comes the text...", text: $text, axis: .vertical)
+                        .focused($texting)
+                        .foregroundColor(.black)
+                        .submitLabel(.return)
+                        .lufga(20, .regular)
+                        .padding(.horizontal ,20)
+                        .padding(.top, 7)
+                    
+                    
+                    Spacer()
+                }
+                .padding(.top, 20)
+                //MARK: -ToolbarItems
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            presentationMode.wrappedValue.dismiss()
+                            
+                            DispatchQueue.main.async {
+                                
+                                addNote()
+                                
+                                try? viewContext.save()
+                                print("Saved note to collections - \(toWhatCollectionSave)")
+                            }
+                            
+                        } label: {
+                            Image("BackButton")
+                                .resizable()
+                                .frame(width: 29, height: 28)
+                                .offset(x: -1)
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 35)
+                                    
+                                        .fill(.black.opacity(0.2))
+                                    
+                                    
+                                )
                         }
                         
-                        TextField("Here comes text...", text: $noteVM.text, axis: .vertical)
-                            .submitLabel(.return)
-                            .lufga(20, .regular)
-                            .padding(20)
-                        
-                        Spacer()
-                    }
-                    .padding(.top, 30)
-                }
-                .zIndex(noteVM.activeTool == .pencil ? 0 : 1)
-                
-                Canvas { context, size in
-
-                    for line in lines {
-                        var path = Path()
-
-                        path.addLines(line.points)
-                        context.stroke(path, with: .color(line.color), lineWidth: line.lineWidth)
-                    }
-                }
-                .gesture(DragGesture(minimumDistance: 0.8, coordinateSpace: .named("ZStack"))
-                    .onChanged({ value  in
-                        let newPoint = value.location
-                        currentLine.points.append(newPoint)
-                        self.lines.append(currentLine)
-                    })
-                        .onEnded({  value in
-                            self.lines.append(currentLine)
-                            self.currentLine = Line(points: [])
-                        }))
-                
-                .disabled(noteVM.activeTool == .pencil ? false : true)
-                .zIndex(noteVM.activeTool == .pencil ? 1 : 0)
-            }
-            .coordinateSpace(name: "ZStack")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        presentationMode.wrappedValue.dismiss()
-                    } label: {
-                        Image("BackButton")
-                            .resizable()
-                            .frame(width: 33, height: 30)
-                            .offset(x: -1)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 35)
-                                    
-                                    .fill(.black.opacity(0.2))
-                                    
-                                
-                            )
                     }
                     
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            showCollections.toggle()
-                        }
-                    } label: {
-                        Image("MenuButton")
-                            .resizable()
-                            .frame(width: 33, height: 30)
-                            .offset(x: -1)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 35)
-                                    .fill(.black.opacity(0.2))
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                if texting {
+                                    texting.toggle()
+                                } else {
+                                    showCollections.toggle()
+                                }
+                            }
+                        } label: {
+                            Image(texting ? "Tick" : "MenuButton")
                                 
-                            )
-
+                                .resizable()
+                                .frame(width: 28, height: 28)
+                                .offset(x: -1)
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 35)
+                                        .fill(.black.opacity(0.2))
+                                    
+                                )
+                                .animation(.default.speed(2.5), value: texting)
+                        }
                     }
                 }
-                ToolbarItem(placement: .bottomBar) {
-//                    CustomToolBar(activeItem: $noteVM.activeTool)
-                    PencilToolBarItem()
+                .onAppear {
+                    self.text = textFromNote
+                    self.toWhatCollectionSave = savedToWhatCollections 
                 }
-                
             }
+        }
+    }
+    
+    private func addNote() {
+        let note = Note(context: viewContext)
+//        note.id = UUID()
+        note.name = firstWordOf(text)
+        note.text = text
+        note.color = background
+        for collection in toWhatCollectionSave {
+            collection.addToNotes(note)
         }
     }
 }
 
 struct NoteVIew_Previews: PreviewProvider {
     static var previews: some View {
-        NoteView(backgroundColor: Color.gray.opacity(0.2))
+        NoteView(textFromNote: "", background: "PastelGreen", savedToWhatCollections: [])
 //            .preferredColorScheme(.dark)
     }
 }
 
 
 
-//                HStack {
-//                    TextEditor( text: $noteVM.text)
-//                        .lufga(30, noteVM.shouldBold ? .bold : .regular)
-//                        .scrollContentBackground(.hidden)
-//                        .onSubmit {
-//                            noteVM.shouldBold = false
-//                        }
-//                        .frame(width: 300, height: .infinity)
-//                }
-//                .padding(.top)
+
+
+func firstWordOf(_ text: String) -> String {
+    return text.components(separatedBy: " ").first ?? ""
+}
 
 
 
-//                    ScrollView(.vertical, showsIndicators: false) {
-//                        ForEach(notesElement, id: \.id) { view in
-//                            AnyView(view)
-//                                .background(backgroundColor)
-//                        }
-//                        CustomToolBar(activeItem: $noteVM.activeTool)
-//                            .padding(.top, 30)
-//                    }

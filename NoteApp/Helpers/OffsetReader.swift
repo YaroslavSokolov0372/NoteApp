@@ -18,7 +18,7 @@ struct OffsetKey: PreferenceKey {
 
 extension View {
     @ViewBuilder
-    func offsetX(completion: @escaping (CGRect) -> ()) -> some View {
+    func `offsetX`(completion: @escaping (CGRect) -> ()) -> some View {
         self
             .frame(maxWidth: .infinity)
             .overlay{
@@ -31,6 +31,34 @@ extension View {
                             .onPreferenceChange(OffsetKey.self ,perform: completion)
                     
                 }
+            }
+    }
+}
+
+
+
+struct ScrollViewPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+
+extension View {
+    func onScrollOffsetChanged(action: @escaping (_ offset: CGFloat) -> Void) -> some View {
+        self
+            .background(
+                GeometryReader { proxy in
+                    let offsetY = proxy.frame(in: .global).minY
+                    Color.clear
+                        .preference(key: ScrollViewPreferenceKey.self ,value: offsetY)
+                        
+                }
+            )
+            .onPreferenceChange(ScrollViewPreferenceKey.self) { value in
+                action(value)
             }
     }
 }

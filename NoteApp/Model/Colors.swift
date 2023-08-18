@@ -8,9 +8,9 @@
 import Foundation
 import SwiftUI
 
-let colors: [Color] = [Color("PastelGreen"),
-                       Color("PastelGreen2"),
-                       Color("PastelBlue"),
-                       Color("PastelOrange"),
-                       Color("PastelYellow"),
-                       Color("GrayLight")]
+let colors: [String] = ["PastelGreen",
+                       "PastelGreen2",
+                       "PastelBlue",
+                       "PastelOrange",
+                       "PastelYellow",
+                       "GrayLight"]

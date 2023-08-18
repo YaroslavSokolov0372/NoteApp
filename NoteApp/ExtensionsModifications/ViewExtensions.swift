@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import CoreData
 
 extension View {
     func hAlignment(_ alignment: Alignment, _ maxHeight: CGFloat) -> some View {
@@ -19,3 +20,7 @@ extension View {
     }
 }
 
+
+extension NSManagedObjectContext: ObservableObject {
+    
+}

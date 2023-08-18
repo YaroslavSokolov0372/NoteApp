@@ -14,7 +14,6 @@ struct NoteAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            
             ContentView()
                 .environment(\.managedObjectContext, dataController.container.viewContext)
 //                .environmentObject(dataController)

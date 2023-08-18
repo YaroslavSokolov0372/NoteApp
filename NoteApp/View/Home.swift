@@ -14,12 +14,16 @@ struct Home: View {
     //    @EnvironmentObject var dataController: DataController
     //    @FetchRequest(sortDescriptors: []) var notes: FetchedResults<Note>
     @StateObject var homeVM: HomeViewModel = HomeViewModel()
+    @State var currentCollection: NoteCollection? = nil
+    
+    
+    
     
     var body: some View {
         NavigationView {
             VStack {
                 HStack(alignment: .top) {
-                    /// Title
+                    // MARK: -Title
                     VStack(alignment: .leading, spacing: -10) {
                         Text("My")
                             .lufga(65, .regular)
@@ -30,7 +34,7 @@ struct Home: View {
                     .padding(10)
                     .hAlignment(.leading, 160)
                     
-                    ///Create new Note
+                    //MARK: -Create new Note
                     VStack {
                         Button {
                             withAnimation(.interactiveSpring(response: 0.5, dampingFraction: 0.6, blendDuration: 0.6)) {
@@ -63,11 +67,12 @@ struct Home: View {
                                 VStack {
                                     ForEach(colors, id: \.self) { color in
                                         NavigationLink {
-                                            NoteView(backgroundColor: color)
+                                            NoteView(textFromNote: "",
+                                                     background: color, savedToWhatCollections: [])
                                                 .navigationBarBackButtonHidden(true)
                                         } label: {
                                             Capsule()
-                                                .fill(color)
+                                                .fill(Color(color))
                                                 .frame(width: 40, height: 40)
                                                 .padding(10)
                                             
@@ -84,20 +89,21 @@ struct Home: View {
                     }
                 }
                 
-                ///ScrollView for collection
+                //MARK: -ScrollView for collection
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
                         ForEach(collections) { collection in
                             if !collections.isEmpty {
                                 Button {
-                                    
+                                    currentCollection = collection
+                                    print(currentCollection ?? "For now its empty")
                                 } label: {
                                     Text(String(collection.name!))
                                         .lufga(25, .light)
+                                        .strokeBackground(padding: 15, cornerRadius: 30)
                                         .foregroundColor(.white)
-                                        
                                 }
-                                .strokeBackground(padding: 15, cornerRadius: 30)
+                                
                             }
                         }
                         
@@ -118,22 +124,35 @@ struct Home: View {
 
                 .padding(.bottom, 25)
                 .padding(.top, 15)
-                ///ScrollView for notes of collection
+                //MARK: -ScrollView for notes of collection
                 ScrollView(.vertical, showsIndicators: false) {
                     HStack {
-                        //                    ForEach(notes) { note in
-                        //                        if !collections.isEmpty {
-                        //
-                        //                        }
-                        //                    }
+                        if currentCollection != nil {
+                            ForEach(currentCollection?.notesArray ?? []) { note in
+                                NavigationLink(destination: NoteView(textFromNote: note.text ?? "",
+                                                                     background: note.color ?? "PastelGreen",
+                                                                     savedToWhatCollections: note.collectionsArray)
+                                                                .navigationBarBackButtonHidden(true)) {
+                                                        
+                                    Text(note.name ?? "")
+                                        .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color("PastelGreen"))
+                                        )
+                                }
+                            }
+                        }
                     }
                     
                 }
                 .blur(radius: homeVM.creatingNewNote ? 10.0 : 0.0)
 
             }
+            .onAppear {
+                homeVM.creatingNewNote = false
+            }
             .padding(7)
-            /// Creating New Collection View
+            //MARK: -Creating New Collection View
             .overlay {
                 VStack {
                     Text("Create a new collection")
@@ -187,3 +206,22 @@ struct Home_Previews: PreviewProvider {
     }
 }
 
+
+extension NoteCollection {
+    public var notesArray: [Note] {
+        let set = notes as? Set<Note> ?? []
+        
+        return set.sorted {
+            $0.name! < $1.name!
+        }
+    }
+}
+
+extension Note {
+    public var collectionsArray: [NoteCollection] {
+        let set = collections as? Set<NoteCollection> ?? []
+        return set.sorted {
+            $0.name! < $1.name!
+        }
+    }
+}

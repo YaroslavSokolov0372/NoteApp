@@ -2,7 +2,7 @@
 //  NoteCollection+CoreDataProperties.swift
 //  NoteApp
 //
-//  Created by Yaroslav Sokolov on 23/06/2023.
+//  Created by Yaroslav Sokolov on 18/08/2023.
 //
 //
 
@@ -18,23 +18,24 @@ extension NoteCollection {
 
     @NSManaged public var name: String?
     @NSManaged public var uid: UUID?
-    @NSManaged public var arrayOfTextFields: NSSet?
+    @NSManaged public var notes: NSSet?
+
 }
 
-// MARK: Generated accessors for arrayOfTextFields
+// MARK: Generated accessors for notes
 extension NoteCollection {
 
-    @objc(addArrayOfTextFieldsObject:)
-    @NSManaged public func addToArrayOfTextFields(_ value: TextFields)
+    @objc(addNotesObject:)
+    @NSManaged public func addToNotes(_ value: Note)
 
-    @objc(removeArrayOfTextFieldsObject:)
-    @NSManaged public func removeFromArrayOfTextFields(_ value: TextFields)
+    @objc(removeNotesObject:)
+    @NSManaged public func removeFromNotes(_ value: Note)
 
-    @objc(addArrayOfTextFields:)
-    @NSManaged public func addToArrayOfTextFields(_ values: NSSet)
+    @objc(addNotes:)
+    @NSManaged public func addToNotes(_ values: NSSet)
 
-    @objc(removeArrayOfTextFields:)
-    @NSManaged public func removeFromArrayOfTextFields(_ values: NSSet)
+    @objc(removeNotes:)
+    @NSManaged public func removeFromNotes(_ values: NSSet)
 
 }
 
