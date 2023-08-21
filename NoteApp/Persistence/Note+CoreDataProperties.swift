@@ -20,6 +20,7 @@ extension Note {
     @NSManaged public var text: String?
     @NSManaged public var color: String?
     @NSManaged public var collections: NSSet?
+    @NSManaged public var time: Date?
 
 }
 

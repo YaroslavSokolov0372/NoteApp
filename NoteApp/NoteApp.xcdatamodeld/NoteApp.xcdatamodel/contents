@@ -4,6 +4,7 @@
         <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="text" optional="YES" attributeType="String"/>
+        <attribute name="time" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="collections" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="NoteCollection" inverseName="notes" inverseEntity="NoteCollection"/>
     </entity>
     <entity name="NoteCollection" representedClassName="NoteCollection" syncable="YES">

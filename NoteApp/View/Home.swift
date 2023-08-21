@@ -14,9 +14,18 @@ struct Home: View {
     //    @EnvironmentObject var dataController: DataController
     //    @FetchRequest(sortDescriptors: []) var notes: FetchedResults<Note>
     @StateObject var homeVM: HomeViewModel = HomeViewModel()
-    @State var currentCollection: NoteCollection? = nil
+    @State var currentCollection: NoteCollection?
+    
+    @State var isFavorite: Bool = false
+    
+    @State var rowsOfNotes: [[Note]] = []
     
     
+    
+//    @State private var colorss: [Color] = [.red, .blue, .purple, .yellow, .black, .indigo, .cyan,
+//                                          .brown, .mint, .orange]
+//
+//    @State var rowss: [[Color]] = []
     
     
     var body: some View {
@@ -67,8 +76,11 @@ struct Home: View {
                                 VStack {
                                     ForEach(colors, id: \.self) { color in
                                         NavigationLink {
-                                            NoteView(textFromNote: "",
-                                                     background: color, savedToWhatCollections: [])
+                                            NoteView(note: Note(context: viewContext),
+                                                     background: color
+//                                                textFromNote: "",
+//                                                     savedToWhatCollections: [],
+                                            )
                                                 .navigationBarBackButtonHidden(true)
                                         } label: {
                                             Capsule()
@@ -96,6 +108,7 @@ struct Home: View {
                             if !collections.isEmpty {
                                 Button {
                                     currentCollection = collection
+                                    generateGridOfNotesOf(collection)
                                     print(currentCollection ?? "For now its empty")
                                 } label: {
                                     Text(String(collection.name!))
@@ -121,27 +134,91 @@ struct Home: View {
                     }
                 }
                 .blur(radius: homeVM.creatingNewNote ? 10.0 : 0.0)
-
+                
                 .padding(.bottom, 25)
                 .padding(.top, 15)
                 //MARK: -ScrollView for notes of collection
                 ScrollView(.vertical, showsIndicators: false) {
-                    HStack {
-                        if currentCollection != nil {
-                            ForEach(currentCollection?.notesArray ?? []) { note in
-                                NavigationLink(destination: NoteView(textFromNote: note.text ?? "",
-                                                                     background: note.color ?? "PastelGreen",
-                                                                     savedToWhatCollections: note.collectionsArray)
-                                                                .navigationBarBackButtonHidden(true)) {
-                                                        
-                                    Text(note.name ?? "")
-                                        .background(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .fill(Color("PastelGreen"))
+                    
+                    VStack(spacing: 10) {
+                            
+                        ForEach(currentCollection?.notesArray ?? [], id: \.self) { note in
+                            NavigationLink(destination: NoteView(note: note, background: nil).navigationBarBackButtonHidden(true)) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: -3) {
+                                        Text(String(note.text!.prefix(10)))
+                                            .foregroundColor(.black)
+                //                            .frame(width: 80)
+                                            .lufga(20, .medium)
+                                            .padding(.bottom, 10)
+                                        
+                                        // MARK - Need to create timeStamp for notes
+                                        Text(note.formattedTime
+//                                             "Updated 2h ago"
                                         )
+                                            .foregroundColor(.black)
+                                            .lufga(15, .light)
+                                    }
+                                    .padding(.leading, 4)
+                                    
+                                    Spacer()
+                                    
+                                    
+                                    
+                                }
+                                .frame(width: 350, height: 80)
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 40)
+                                        .fill(Color(note.color!))
+                                )
+                                .overlay {
+                                    Button {
+                                        isFavorite.toggle()
+                                    } label: {
+                                        Image(isFavorite ? "HeartRed" : "Heart")
+                                            .resizable()
+                                            .frame(width: 40, height: 40)
+                                            .background(
+                                                Circle()
+                                                    .fill(Color.black.opacity(0.2))
+                                                    .frame(width: 70, height: 70)
+                                                
+                                                
+                                            )
+                                    }
+                                    .offset(x: 150)
+                                    .padding(.trailing, 10)
+                                    .padding(.bottom, 7)
                                 }
                             }
                         }
+//                        ForEach(rowsOfNotes.indices, id: \.self) { index in
+//
+//                            HStack(spacing: 10) {
+//
+//                                ForEach(rowsOfNotes[index], id: \.self) { note in
+//
+//                                    NavigationLink(destination: NoteView(note: note, background: nil).navigationBarBackButtonHidden(true)) {
+//
+//
+////                                        Text(note.name!)
+////                                            .background(
+////                                        RoundedRectangle(cornerRadius: 10)
+////                                            .fill(Color(note.color!))
+////                                            .frame(width: 175, height: 100)
+////                                    )
+//
+//
+//
+//                                    }
+//
+//
+//
+//                                }
+//                            }
+//
+//                        }
                     }
                     
                 }
@@ -150,9 +227,17 @@ struct Home: View {
             }
             .onAppear {
                 homeVM.creatingNewNote = false
+                if currentCollection == nil {
+                    if let firstCollection = collections.first  {
+                        currentCollection = firstCollection
+                        generateGridOfNotesOf(currentCollection!)
+                    }
+                    
+                }
+                
             }
             .padding(7)
-            //MARK: -Creating New Collection View
+            //MARK: -Creating "New Collection" View
             .overlay {
                 VStack {
                     Text("Create a new collection")
@@ -198,6 +283,50 @@ struct Home: View {
             }
         }
     }
+    
+    func generateGridOfNotesOf(_ noteCollection: NoteCollection) {
+        
+        self.rowsOfNotes = []
+        
+        var generated: [Note] = []
+        
+        var count = 0
+        
+        for i in noteCollection.notesArray {
+            
+            generated.append(i)
+            
+            if rowsOfNotes.isEmpty {
+                
+                if generated.count == 2 {
+                    
+                    rowsOfNotes.append(generated)
+                    generated.removeAll()
+                    count += 1
+                }
+                
+            } else {
+                
+//                if rowsOfNotes[count - 1].count == 2 {
+                if rowsOfNotes.last?.count == 2 {
+                    
+                    if generated.count == 1 {
+                        rowsOfNotes.append(generated)
+                        generated.removeAll()
+                        count += 1
+                    }
+                    
+                } else {
+                    if generated.count == 2 {
+                        rowsOfNotes.append(generated)
+                        generated.removeAll()
+                        count += 1
+                    }
+                }
+            }
+        }
+    }
+    
 }
 
 struct Home_Previews: PreviewProvider {
@@ -224,4 +353,18 @@ extension Note {
             $0.name! < $1.name!
         }
     }
+    
+    public var formattedTime: String {
+        
+        if time != nil {
+            let formater = DateFormatter()
+            //        formater.dateFormat = "yyyy-MM-dd"
+            formater.dateFormat = "EEEE, MMM dd"
+            
+            return formater.string(from: time!)
+        } else {
+            return "Updated 2h ago"
+        }
+    }
+        
 }

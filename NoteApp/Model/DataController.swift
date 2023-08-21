@@ -19,4 +19,19 @@ class DataController: ObservableObject {
             }
         }
     }
+    
+    func deleteNote(note: Note) {
+        container.viewContext.delete(note)
+        
+        do {
+            try container.viewContext.save()
+        } catch {
+            container.viewContext.rollback()
+            print(error.localizedDescription)
+        }
+    }
+    
+    
+    
+    
 }

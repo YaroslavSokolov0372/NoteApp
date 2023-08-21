@@ -9,51 +9,40 @@ import SwiftUI
 
 
 
-struct Line {
-    var points: [CGPoint] = [CGPoint]()
-    var color: Color = .black
-    var lineWidth: CGFloat = 1.0
-}
 
 struct NoteView: View {
     
     
-    @FetchRequest(sortDescriptors: []) var collections: FetchedResults<NoteCollection>
     @Environment(\.managedObjectContext) var viewContext
+    @FetchRequest(sortDescriptors: []) var collections: FetchedResults<NoteCollection>
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
-    
-    var textFromNote: String
-    @State var showCollections: Bool = false
-    @State var text: String = ""
-    @FocusState var texting: Bool
-    var background: String
+    var note: Note?
+    var background: String?
     
     
-//    @State var saveIn: Bool = false
     @State var toWhatCollectionSave: [NoteCollection] = []
-    var savedToWhatCollections: [NoteCollection]
+    @State var text: String = ""
     
-//    @State var collectioins = [String]()
-//    var notes: [String] = ["Hello World", "Named", "Style", "Collection"]
-    
-//    init(text: String) {
-//
-//
-//    }
-    
+    @State var showCollections: Bool = false
+    @FocusState var texting: Bool
+
+
     
     
     var body: some View {
         NavigationView {
             ZStack {
-                Color(background)
-                    .ignoresSafeArea()
+                if background != nil {
+                    Color(background!)
+                        .ignoresSafeArea()
+                } else {
+                    Color(note?.color ?? "PastelGreen")
+                        .ignoresSafeArea()
+                }
                 VStack {
                     //MARK: -Collections
-                    if showCollections
-//                        || !collections.isEmpty
-                    {
+                    if showCollections {
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
@@ -92,19 +81,14 @@ struct NoteView: View {
                     Spacer()
                 }
                 .padding(.top, 20)
+                
                 //MARK: -ToolbarItems
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button {
                             presentationMode.wrappedValue.dismiss()
                             
-                            DispatchQueue.main.async {
-                                
-                                addNote()
-                                
-                                try? viewContext.save()
-                                print("Saved note to collections - \(toWhatCollectionSave)")
-                            }
+                            addNote()
                             
                         } label: {
                             Image("BackButton")
@@ -149,28 +133,42 @@ struct NoteView: View {
                     }
                 }
                 .onAppear {
-                    self.text = textFromNote
-                    self.toWhatCollectionSave = savedToWhatCollections 
+                    text = note?.text ?? ""
+                    toWhatCollectionSave = note?.collectionsArray ?? []
+                    
                 }
             }
         }
     }
     
     private func addNote() {
-        let note = Note(context: viewContext)
 //        note.id = UUID()
-        note.name = firstWordOf(text)
-        note.text = text
-        note.color = background
-        for collection in toWhatCollectionSave {
-            collection.addToNotes(note)
+        note!.name = firstWordOf(text)
+        note!.text = text
+        note!.time = .now
+        if note!.color == nil {
+            note!.color = background ?? "PastelGreen"
         }
+        for collection in toWhatCollectionSave {
+            if !collection.notesArray.contains(note!) {
+                collection.addToNotes(note!)
+            }
+        }
+        
+        try? viewContext.save()
+        print("Saved note to collections - \(toWhatCollectionSave)")
+
     }
+    
+    func firstWordOf(_ text: String) -> String {
+        return text.components(separatedBy: " ").first ?? ""
+    }
+    
 }
 
 struct NoteVIew_Previews: PreviewProvider {
     static var previews: some View {
-        NoteView(textFromNote: "", background: "PastelGreen", savedToWhatCollections: [])
+        NoteView()
 //            .preferredColorScheme(.dark)
     }
 }
@@ -179,9 +177,6 @@ struct NoteVIew_Previews: PreviewProvider {
 
 
 
-func firstWordOf(_ text: String) -> String {
-    return text.components(separatedBy: " ").first ?? ""
-}
 
 
 
