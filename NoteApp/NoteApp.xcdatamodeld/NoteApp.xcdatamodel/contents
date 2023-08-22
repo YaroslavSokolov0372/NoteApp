@@ -6,10 +6,12 @@
         <attribute name="text" optional="YES" attributeType="String"/>
         <attribute name="time" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="collections" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="NoteCollection" inverseName="notes" inverseEntity="NoteCollection"/>
+        <relationship name="isFavourite" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="NoteCollection" inverseName="favouriteNotes" inverseEntity="NoteCollection"/>
     </entity>
     <entity name="NoteCollection" representedClassName="NoteCollection" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="uid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="favouriteNotes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Note" inverseName="isFavourite" inverseEntity="Note"/>
         <relationship name="notes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Note" inverseName="collections" inverseEntity="Note"/>
     </entity>
 </model>

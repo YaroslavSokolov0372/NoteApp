@@ -2,7 +2,7 @@
 //  Note+CoreDataProperties.swift
 //  NoteApp
 //
-//  Created by Yaroslav Sokolov on 18/08/2023.
+//  Created by Yaroslav Sokolov on 22/08/2023.
 //
 //
 
@@ -16,11 +16,12 @@ extension Note {
         return NSFetchRequest<Note>(entityName: "Note")
     }
 
+    @NSManaged public var color: String?
     @NSManaged public var name: String?
     @NSManaged public var text: String?
-    @NSManaged public var color: String?
-    @NSManaged public var collections: NSSet?
     @NSManaged public var time: Date?
+    @NSManaged public var collections: NSSet?
+    @NSManaged public var isFavourite: NSSet?
 
 }
 
@@ -38,6 +39,23 @@ extension Note {
 
     @objc(removeCollections:)
     @NSManaged public func removeFromCollections(_ values: NSSet)
+
+}
+
+// MARK: Generated accessors for isFavourite
+extension Note {
+
+    @objc(addIsFavouriteObject:)
+    @NSManaged public func addToIsFavourite(_ value: NoteCollection)
+
+    @objc(removeIsFavouriteObject:)
+    @NSManaged public func removeFromIsFavourite(_ value: NoteCollection)
+
+    @objc(addIsFavourite:)
+    @NSManaged public func addToIsFavourite(_ values: NSSet)
+
+    @objc(removeIsFavourite:)
+    @NSManaged public func removeFromIsFavourite(_ values: NSSet)
 
 }
 

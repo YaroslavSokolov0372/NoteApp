@@ -31,5 +31,22 @@ class HomeViewModel: ObservableObject {
         }
         nameOfCollection = ""
     }
+    
+//    func isCollectionNameExist(_ collections: FetchedResults<NoteCollection>, collecitonName: String) -> Bool {
+//        
+//        
+//        for collection in collections {
+//            if collection.name == collecitonName {
+//                return true
+//            } else {
+//                return false
+//            }
+//        }
+//        
+//        
+//    }
+    
+    
+    
 }
 

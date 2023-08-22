@@ -2,7 +2,7 @@
 //  NoteCollection+CoreDataClass.swift
 //  NoteApp
 //
-//  Created by Yaroslav Sokolov on 18/08/2023.
+//  Created by Yaroslav Sokolov on 22/08/2023.
 //
 //
 

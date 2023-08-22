@@ -89,6 +89,7 @@ struct NoteView: View {
                             presentationMode.wrappedValue.dismiss()
                             
                             addNote()
+                            print(text.last ?? "LOL")
                             
                         } label: {
                             Image("BackButton")
@@ -143,7 +144,18 @@ struct NoteView: View {
     
     private func addNote() {
 //        note.id = UUID()
-        note!.name = firstWordOf(text)
+        
+        
+        note!.name = firstRow()
+//        firstWordOf(text)
+//        firstWordOf(text)
+        
+        
+        
+//        while text.last == "\n" {
+//            text.removeLast()
+//
+//        }
         note!.text = text
         note!.time = .now
         if note!.color == nil {
@@ -162,6 +174,21 @@ struct NoteView: View {
     
     func firstWordOf(_ text: String) -> String {
         return text.components(separatedBy: " ").first ?? ""
+    }
+    
+    
+    func firstRow() -> String {
+        
+        var newText = text.prefix(18)
+        
+        while newText.last == " " {
+            print(newText.last as Any)
+            newText.removeLast()
+            
+        }
+//        String(describing: newText.last)
+
+        return String(newText)
     }
     
 }

@@ -11,6 +11,7 @@ struct Home: View {
     
     @Environment(\.managedObjectContext) var viewContext
     @FetchRequest(sortDescriptors: []) var collections: FetchedResults<NoteCollection>
+    
     //    @EnvironmentObject var dataController: DataController
     //    @FetchRequest(sortDescriptors: []) var notes: FetchedResults<Note>
     @StateObject var homeVM: HomeViewModel = HomeViewModel()
@@ -21,11 +22,8 @@ struct Home: View {
     @State var rowsOfNotes: [[Note]] = []
     
     
-    
-//    @State private var colorss: [Color] = [.red, .blue, .purple, .yellow, .black, .indigo, .cyan,
-//                                          .brown, .mint, .orange]
-//
-//    @State var rowss: [[Color]] = []
+    @State var settingMode: Bool = true
+
     
     
     var body: some View {
@@ -72,32 +70,32 @@ struct Home: View {
                         )
                         .scaleEffect(homeVM.creatingNewNote ? 1.1 : 1.0)
                         .padding(.horizontal, 20)
-                        .overlay {
-                                VStack {
-                                    ForEach(colors, id: \.self) { color in
-                                        NavigationLink {
-                                            NoteView(note: Note(context: viewContext),
-                                                     background: color
-//                                                textFromNote: "",
-//                                                     savedToWhatCollections: [],
-                                            )
-                                                .navigationBarBackButtonHidden(true)
-                                        } label: {
-                                            Capsule()
-                                                .fill(Color(color))
-                                                .frame(width: 40, height: 40)
-                                                .padding(10)
-                                            
-                                        }
-                                        .opacity(homeVM.creatingNewNote ? 1.0 : 0.0)
-                                        
-                                    }
-                                    
-                                }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .offset(y: 190)
-                                .offset(y: homeVM.creatingNewNote ? 50 : 0)
-                        }
+//                        .overlay {
+//                                VStack {
+//                                    ForEach(colors, id: \.self) { color in
+//                                        NavigationLink {
+//                                            NoteView(note: Note(context: viewContext),
+//                                                     background: color
+////                                                textFromNote: "",
+////                                                     savedToWhatCollections: [],
+//                                            )
+//                                                .navigationBarBackButtonHidden(true)
+//                                        } label: {
+//                                            Capsule()
+//                                                .fill(Color(color))
+//                                                .frame(width: 40, height: 40)
+//                                                .padding(10)
+//
+//                                        }
+//                                        .opacity(homeVM.creatingNewNote ? 1.0 : 0.0)
+//
+//                                    }
+//
+//                                }
+//                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                                .offset(y: 190)
+//                                .offset(y: homeVM.creatingNewNote ? 50 : 0)
+//                        }
                     }
                 }
                 
@@ -111,18 +109,34 @@ struct Home: View {
                                     generateGridOfNotesOf(collection)
                                     print(currentCollection ?? "For now its empty")
                                 } label: {
-                                    Text(String(collection.name!))
-                                        .lufga(25, .light)
-                                        .strokeBackground(padding: 15, cornerRadius: 30)
-                                        .foregroundColor(.white)
+                                    HStack {
+                                        Text(String(collection.name!))
+                                            .lufga(25, .light)
+                                            .foregroundColor(.white)
+                                        
+                                        Text(String(describing: collection.allNotesArray.count))
+                                            .lufga(19, .light)
+                                            
+                                            .background(
+                                                Circle()
+                                                    .fill(Color("GrayLight"))
+                                                    .frame(width: 30, height: 30)
+                                                    
+                                            )
+                                            .padding(.horizontal, 10)
+                                            
+                                    }
+                                    .strokeBackground(padding: 15, cornerRadius: 30)
+                                    .foregroundColor(.white)
+                                       
                                 }
-                                
                             }
                         }
                         
                         Button {
                             withAnimation {
                                 homeVM.showNewCollection = true
+                                homeVM.nameOfCollection = ""
                             }
                         } label: {
                             Image(systemName: "plus")
@@ -142,23 +156,23 @@ struct Home: View {
                     
                     VStack(spacing: 10) {
                             
-                        ForEach(currentCollection?.notesArray ?? [], id: \.self) { note in
+                        ForEach(currentCollection?.allNotesArray ?? [], id: \.self) { note in
                             NavigationLink(destination: NoteView(note: note, background: nil).navigationBarBackButtonHidden(true)) {
                                 HStack {
                                     VStack(alignment: .leading, spacing: -3) {
-                                        Text(String(note.text!.prefix(10)))
+                                        //                                        Text(String(note.text!.prefix(18)) + "...")
+                                        Text(String(note.name!) + "...")
                                             .foregroundColor(.black)
-                //                            .frame(width: 80)
+                                        //                            .frame(width: 80)
                                             .lufga(20, .medium)
                                             .padding(.bottom, 10)
                                         
                                         // MARK - Need to create timeStamp for notes
-                                        Text(note.formattedTime
-//                                             "Updated 2h ago"
-                                        )
+                                        Text("Opened " + note.formattedTime)
                                             .foregroundColor(.black)
                                             .lufga(15, .light)
                                     }
+                                    
                                     .padding(.leading, 4)
                                     
                                     Spacer()
@@ -172,11 +186,13 @@ struct Home: View {
                                     RoundedRectangle(cornerRadius: 40)
                                         .fill(Color(note.color!))
                                 )
+                                
+                                
                                 .overlay {
                                     Button {
-                                        isFavorite.toggle()
+                                        addToFavourites(note, currentCollection!)
                                     } label: {
-                                        Image(isFavorite ? "HeartRed" : "Heart")
+                                        Image(currentCollection!.favouriteNotesArray.contains(note) ? "HeartRed" : "Heart")
                                             .resizable()
                                             .frame(width: 40, height: 40)
                                             .background(
@@ -186,11 +202,28 @@ struct Home: View {
                                                 
                                                 
                                             )
+                                        //                                            .onTapGesture {
+                                        //                                                withAnimation {
+                                        //                                                    isFavorite.toggle()
+                                        //                                                }
+                                        //                                            }
+                                        //                                            .onLongPressGesture(minimumDuration: 1.0) {
+                                        //                                                print("LongGesture is working")
+                                        //                                            }
                                     }
                                     .offset(x: 150)
                                     .padding(.trailing, 10)
                                     .padding(.bottom, 7)
                                 }
+                                
+                                
+//                                .onLongPressGesture(minimumDuration: 1.0) {
+//                                    print("LongGesture is working")
+//                                }
+                            }
+                            
+                            .onLongPressGesture(minimumDuration: 1.0) {
+                                print("LongGesture is working")
                             }
                         }
 //                        ForEach(rowsOfNotes.indices, id: \.self) { index in
@@ -249,8 +282,17 @@ struct Home: View {
                     HStack {
                         Button {
                             if !homeVM.nameOfCollection.isEmpty {
-                                homeVM.addCollection(managedContext: viewContext)
+                                if !isCollectionNameExist(homeVM.nameOfCollection) {
+                                    homeVM.addCollection(managedContext: viewContext)
+                                    
+                                } else {
+                                    print("This name is already exist. Choose another one")
+                                }
                             }
+                            withAnimation {
+                                homeVM.showNewCollection = false
+                            }
+                            
                         } label: {
                             Text("Create")
                                 .foregroundColor(.white)
@@ -280,6 +322,35 @@ struct Home: View {
                 .background(.black)
                 .offset(y: homeVM.showNewCollection ? -95 : -80)
                 .opacity(homeVM.showNewCollection ? 1.0 : 0.0)
+            }
+            //MARK: -ChooseColor for newNote
+            .overlay {
+                VStack {
+                    ForEach(colors, id: \.self) { color in
+                        NavigationLink {
+                            NoteView(note: Note(context: viewContext),
+                                     background: color
+                                     //                                                textFromNote: "",
+                                     //                                                     savedToWhatCollections: [],
+                            )
+                            .navigationBarBackButtonHidden(true)
+                        } label: {
+                            Capsule()
+                                .fill(Color(color))
+                                .frame(width: 40, height: 40)
+                                .padding(10)
+                            
+                        }
+                        .opacity(homeVM.creatingNewNote ? 1.0 : 0.0)
+                        
+                    }
+                    
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .offset(x: 140, y: -130)
+                
+                
+                .offset(y: homeVM.creatingNewNote ? 50 : 0)
             }
         }
     }
@@ -327,6 +398,30 @@ struct Home: View {
         }
     }
     
+    func isCollectionNameExist(_ nameToCheck: String) -> Bool {
+        
+        if collections.contains(where: { collection in
+            collection.name == nameToCheck
+        }) {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    func addToFavourites(_ note: Note, _ toNoteCollection : NoteCollection) {
+        
+        if toNoteCollection.favouriteNotesArray.contains(note) {
+            toNoteCollection.removeFromFavouriteNotes(note)
+            toNoteCollection.addToNotes(note)
+        } else {
+            toNoteCollection.addToFavouriteNotes(note)
+            toNoteCollection.removeFromNotes(note)
+        }
+    }
+    
+    
+    
 }
 
 struct Home_Previews: PreviewProvider {
@@ -341,9 +436,26 @@ extension NoteCollection {
         let set = notes as? Set<Note> ?? []
         
         return set.sorted {
+//            $0.time! < $1.time!
             $0.name! < $1.name!
         }
     }
+    
+    public var favouriteNotesArray: [Note] {
+        let set = favouriteNotes as? Set<Note> ?? []
+        
+        return set.sorted() {
+//            $0.time! < $1.time!
+            $0.name! < $1.name!
+        }
+    }
+    
+    public var allNotesArray: [Note] {
+        let allNotes = favouriteNotesArray + notesArray
+        
+        return allNotes
+    }
+    
 }
 
 extension Note {
@@ -366,5 +478,5 @@ extension Note {
             return "Updated 2h ago"
         }
     }
-        
+           
 }
