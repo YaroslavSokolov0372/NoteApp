@@ -15,7 +15,6 @@
 		D117BFC12A9507B1008E00B6 /* Note+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D117BFBD2A9507B1008E00B6 /* Note+CoreDataProperties.swift */; };
 		D117BFC22A9507B1008E00B6 /* NoteCollection+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D117BFBE2A9507B1008E00B6 /* NoteCollection+CoreDataClass.swift */; };
 		D117BFC32A9507B1008E00B6 /* NoteCollection+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D117BFBF2A9507B1008E00B6 /* NoteCollection+CoreDataProperties.swift */; };
-		D117BFC52A952ADF008E00B6 /* TestFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D117BFC42A952ADF008E00B6 /* TestFile.swift */; };
 		D18D77752A487F6400F712DC /* Lufga.swift in Sources */ = {isa = PBXBuildFile; fileRef = D18D77742A487F6400F712DC /* Lufga.swift */; };
 		D18D777F2A487FBD00F712DC /* Lufga-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D18D77772A487FBD00F712DC /* Lufga-ExtraLight.ttf */; };
 		D18D77802A487FBD00F712DC /* Lufga-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D18D77782A487FBD00F712DC /* Lufga-Medium.ttf */; };
@@ -52,7 +51,6 @@
 		D117BFBD2A9507B1008E00B6 /* Note+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		D117BFBE2A9507B1008E00B6 /* NoteCollection+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteCollection+CoreDataClass.swift"; sourceTree = "<group>"; };
 		D117BFBF2A9507B1008E00B6 /* NoteCollection+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteCollection+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		D117BFC42A952ADF008E00B6 /* TestFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFile.swift; sourceTree = "<group>"; };
 		D18D77742A487F6400F712DC /* Lufga.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lufga.swift; sourceTree = "<group>"; };
 		D18D77772A487FBD00F712DC /* Lufga-ExtraLight.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lufga-ExtraLight.ttf"; sourceTree = "<group>"; };
 		D18D77782A487FBD00F712DC /* Lufga-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lufga-Medium.ttf"; sourceTree = "<group>"; };
@@ -180,7 +178,6 @@
 			isa = PBXGroup;
 			children = (
 				D1C32E862A44D0D600DD8562 /* Home.swift */,
-				D117BFC42A952ADF008E00B6 /* TestFile.swift */,
 				D1E9019A2A8EC6470071DDBC /* NoteSketch.swift */,
 				D10F1B6A2A47898500C34E6A /* NoteView.swift */,
 				D18D778B2A48A03000F712DC /* BlurView.swift */,
@@ -308,7 +305,6 @@
 				D1C32E752A44CC0300DD8562 /* ContentView.swift in Sources */,
 				D1D27E4A2A65897200694C7D /* SizeReader.swift in Sources */,
 				D117BFC22A9507B1008E00B6 /* NoteCollection+CoreDataClass.swift in Sources */,
-				D117BFC52A952ADF008E00B6 /* TestFile.swift in Sources */,
 				D1C32E872A44D0D600DD8562 /* Home.swift in Sources */,
 				D1C32E732A44CC0300DD8562 /* NoteAppApp.swift in Sources */,
 				D117BFB72A924981008E00B6 /* NoteScollViewCard.swift in Sources */,

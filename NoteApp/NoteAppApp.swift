@@ -14,6 +14,8 @@ struct NoteAppApp: App {
 
     var body: some Scene {
         WindowGroup {
+            
+//            NoteScollViewCard()
             ContentView()
                 .environment(\.managedObjectContext, dataController.container.viewContext)
             

@@ -23,7 +23,11 @@ struct Home: View {
     
     
     @State var settingMode: Bool = true
-
+    
+    @State var deleteNotesMode: Bool = false
+    @State var showDeleteSheet: Bool = false
+    @State var noteToDelete: Note?
+    @State var collectionToDelete: NoteCollection?
     
     
     var body: some View {
@@ -104,11 +108,11 @@ struct Home: View {
                     HStack {
                         ForEach(collections) { collection in
                             if !collections.isEmpty {
-                                Button {
-                                    currentCollection = collection
-                                    generateGridOfNotesOf(collection)
-                                    print(currentCollection ?? "For now its empty")
-                                } label: {
+//                                Button {
+//                                    currentCollection = collection
+//                                    generateGridOfNotesOf(collection)
+//                                    print(currentCollection ?? "For now its empty")
+//                                } label: {
                                     HStack {
                                         Text(String(collection.name!))
                                             .lufga(25, .light)
@@ -128,8 +132,18 @@ struct Home: View {
                                     }
                                     .strokeBackground(padding: 15, cornerRadius: 30)
                                     .foregroundColor(.white)
+                                    .onTapGesture {
+                                        
+                                        currentCollection = collection
+                                        generateGridOfNotesOf(collection)
+                                        print(currentCollection ?? "For now its empty")
+                                    }
+                                    .onLongPressGesture(minimumDuration: 0.5) {
+                                        showDeleteSheet.toggle()
+                                        collectionToDelete = collection
+                                    }
                                        
-                                }
+//                                }
                             }
                         }
                         
@@ -172,59 +186,72 @@ struct Home: View {
                                             .foregroundColor(.black)
                                             .lufga(15, .light)
                                     }
+
                                     
                                     .padding(.leading, 4)
                                     
                                     Spacer()
                                     
                                     
-                                    
+                                 
                                 }
+
                                 .frame(width: 350, height: 80)
                                 .padding()
                                 .background(
                                     RoundedRectangle(cornerRadius: 40)
                                         .fill(Color(note.color!))
                                 )
+
                                 
                                 
                                 .overlay {
-                                    Button {
-                                        addToFavourites(note, currentCollection!)
-                                    } label: {
-                                        Image(currentCollection!.favouriteNotesArray.contains(note) ? "HeartRed" : "Heart")
-                                            .resizable()
-                                            .frame(width: 40, height: 40)
-                                            .background(
-                                                Circle()
-                                                    .fill(Color.black.opacity(0.2))
-                                                    .frame(width: 70, height: 70)
+                                    //                                    Button {
+                                    //                                        addToFavourites(note, currentCollection!)
+                                    //                                    } label: {
+
+
+                                    Image(deleteNotesMode ? "Cross" : currentCollection!.favouriteNotesArray.contains(note) ? "HeartRed" : "Heart")
+                                        .resizable()
+                                        .frame(width: 40, height: 40)
+                                        .background(
+                                            Circle()
+                                                .fill(Color.black.opacity(0.2))
+                                                .frame(width: 70, height: 70)
+
+
+                                        )
+                                        .simultaneousGesture(LongPressGesture().onEnded({ _ in
+                                            print("Got Long Press")
+                                            withAnimation {
+                                                deleteNotesMode.toggle()
                                                 
+                                            }
+                                        }))
+                                        .simultaneousGesture(TapGesture().onEnded({ _ in
+                                            print("Got  Press")
+
+                                            if !deleteNotesMode {
+                                                addToFavourites(note, currentCollection!)
+                                            } else {
+                                                withAnimation {
+                                                    showDeleteSheet = true
+                                                }
                                                 
-                                            )
-                                        //                                            .onTapGesture {
-                                        //                                                withAnimation {
-                                        //                                                    isFavorite.toggle()
-                                        //                                                }
-                                        //                                            }
-                                        //                                            .onLongPressGesture(minimumDuration: 1.0) {
-                                        //                                                print("LongGesture is working")
-                                        //                                            }
-                                    }
-                                    .offset(x: 150)
-                                    .padding(.trailing, 10)
-                                    .padding(.bottom, 7)
+                                                noteToDelete = note
+                                            }
+                                        }))
+                                        .offset(x: 150)
+                                        .padding(.trailing, 10)
+                                        .padding(.bottom, 7)
                                 }
-                                
+
                                 
 //                                .onLongPressGesture(minimumDuration: 1.0) {
 //                                    print("LongGesture is working")
 //                                }
                             }
                             
-                            .onLongPressGesture(minimumDuration: 1.0) {
-                                print("LongGesture is working")
-                            }
                         }
 //                        ForEach(rowsOfNotes.indices, id: \.self) { index in
 //
@@ -273,14 +300,45 @@ struct Home: View {
             //MARK: -Creating "New Collection" View
             .overlay {
                 VStack {
-                    Text("Create a new collection")
-                        .lufga(27, .regular)
-                        .padding(.horizontal, 10)
+                    VStack {
+                        Text("Create a new collection")
+                            .foregroundColor(.white)
+                            .lufga(27, .regular)
+                            .padding(.horizontal, 10)
+                            .padding(.top, 15)
+
+                        
+                        TextField("Colleciton Name", text: $homeVM.nameOfCollection)
+                            .lineLimit(1)
+                            .lufga(22, .regular)
+                            .padding(.leading, 80)
+                            .padding(.bottom, 60)
+                            .onChange(of: homeVM.nameOfCollection) { _ in
+                                if homeVM.nameOfCollection.count >= 15 {
+                                    while homeVM.nameOfCollection.count >= 15 {
+                                        homeVM.nameOfCollection.removeLast()
+                                    }
+                                }
+                            }
+                    }
+        //            .strokeBackground(padding: 0, cornerRadius: 30)
+                    .offset(y: 10)
+                                .frame(width: 370, height: 200)
+                    .background(
+                        RoundedRectangle(cornerRadius: 30)
+                            .stroke(lineWidth: 1)
+                            .fill(.white)
+                            .background(RoundedRectangle(cornerRadius: 30)
+                                .fill(.black)
+                            )
+                        )
+                
+
                     
-                    TextField("Name of Collection", text: $homeVM.nameOfCollection)
-                        .padding(.horizontal, 30)
                     HStack {
+                        
                         Button {
+                            
                             if !homeVM.nameOfCollection.isEmpty {
                                 if !isCollectionNameExist(homeVM.nameOfCollection) {
                                     homeVM.addCollection(managedContext: viewContext)
@@ -292,38 +350,215 @@ struct Home: View {
                             withAnimation {
                                 homeVM.showNewCollection = false
                             }
+
                             
                         } label: {
-                            Text("Create")
-                                .foregroundColor(.white)
-                                .lufga(16, .regular)
+                            Image("TickWhite")
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .offset(x: -1)
+                                .padding()
+        //                        .background(
+        //                            RoundedRectangle(cornerRadius: 35)
+        //                                .fill(Color("GrayLight"))
+        //                        )
+                                .background(
+                                    Circle()
+                                        .stroke(lineWidth: 1)
+                                        .fill(.white)
+                                        .background(
+                                            Circle()
+                                                .fill(Color.black)
+                                        )
+                                )
+
+                            
                         }
-                        .strokeBackground(padding: 15, cornerRadius: 10)
                         .padding(.trailing, 30)
-                        
-                        
+
                         Button {
                             withAnimation {
                                 homeVM.showNewCollection = false
                             }
                         } label: {
-                            Text("Cancel")
-                                .foregroundColor(.white)
-                                .lufga(16, .regular)
+                            Image("CrossWhite")
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .offset(x: -1)
+                                .padding()
+                                .background(
+                                    Circle()
+                                        .stroke(lineWidth: 1)
+                                        .fill(.white)
+                                        .background(
+                                            Circle()
+                                                .fill(Color.black)
+                                        )
+                                )
+
                         }
-                        .strokeBackground(padding: 15, cornerRadius: 10)
+                        
+                        
                         .padding(.leading, 30)
                         
                     }
-                    .padding(.top, 20)
+                    .offset(y: -40)
+                    
+                    
                 }
-                .frame(width: 350)
-                .strokeBackground(padding: 15, cornerRadius: 30)
-                .background(.black)
-                .offset(y: homeVM.showNewCollection ? -95 : -80)
+                .offset(y: homeVM.showNewCollection ? -50 : 10)
                 .opacity(homeVM.showNewCollection ? 1.0 : 0.0)
+//                VStack {
+//                    Text("Create a new collection")
+//                        .lufga(27, .regular)
+//                        .padding(.horizontal, 10)
+//
+//                    TextField("Name of Collection", text: $homeVM.nameOfCollection)
+//                        .padding(.horizontal, 30)
+//                    HStack {
+//                        Button {
+//                            if !homeVM.nameOfCollection.isEmpty {
+//                                if !isCollectionNameExist(homeVM.nameOfCollection) {
+//                                    homeVM.addCollection(managedContext: viewContext)
+//
+//                                } else {
+//                                    print("This name is already exist. Choose another one")
+//                                }
+//                            }
+//                            withAnimation {
+//                                homeVM.showNewCollection = false
+//                            }
+//
+//                        } label: {
+//                            Text("Create")
+//                                .foregroundColor(.white)
+//                                .lufga(16, .regular)
+//                        }
+//                        .strokeBackground(padding: 15, cornerRadius: 10)
+//                        .padding(.trailing, 30)
+//
+//
+//                        Button {
+//                            withAnimation {
+//                                homeVM.showNewCollection = false
+//                            }
+//                        } label: {
+//                            Text("Cancel")
+//                                .foregroundColor(.white)
+//                                .lufga(16, .regular)
+//                        }
+//                        .strokeBackground(padding: 15, cornerRadius: 10)
+//                        .padding(.leading, 30)
+//
+//                    }
+//                    .padding(.top, 20)
+//                }
+//                .frame(width: 350)
+//                .strokeBackground(padding: 15, cornerRadius: 30)
+//                .background(.black)
+//                .offset(y: homeVM.showNewCollection ? -95 : -80)
+//                .opacity(homeVM.showNewCollection ? 1.0 : 0.0)
             }
-            //MARK: -ChooseColor for newNote
+            //MARK: -Delete Sheet
+            .overlay {
+                VStack {
+                    VStack {
+                        Text(noteToDelete == nil ? "Delete Collection?" : "Delete Note?")
+                            .foregroundColor(.white)
+                            .lufga(27, .regular)
+                            .offset(y: -13)
+                    }
+                    .frame(width: 280, height: 90)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 30)
+                            .stroke(lineWidth: 1)
+                            .fill(.white)
+                            .background(RoundedRectangle(cornerRadius: 30)
+                                .fill(.black)
+                            )
+                    )
+                    
+                    
+                    
+                    HStack {
+                        
+                        Button {
+                            if let note = noteToDelete {
+                                currentCollection?.removeFromNotes(note)
+                                currentCollection?.removeFromFavouriteNotes(note)
+                                
+                            } else {
+                                viewContext.delete(collectionToDelete!)
+                            }
+                            try? viewContext.save()
+                            withAnimation {
+                                showDeleteSheet.toggle()
+                                noteToDelete = nil
+                                collectionToDelete = nil
+                            }
+                        } label: {
+                            Image("TickWhite")
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .offset(x: -1)
+                                .padding()
+                            //                        .background(
+                            //                            RoundedRectangle(cornerRadius: 35)
+                            //                                .fill(Color("GrayLight"))
+                            //                        )
+                                .background(
+                                    Circle()
+                                        .stroke(lineWidth: 1)
+                                        .fill(.white)
+                                        .background(
+                                            Circle()
+                                                .fill(Color.black)
+                                        )
+                                )
+                            
+                            
+                        }
+                        .padding(.trailing, 30)
+                        
+                        Button {
+                            withAnimation {
+                                showDeleteSheet.toggle()
+                                noteToDelete = nil
+                                collectionToDelete = nil
+                            }
+                        } label: {
+                            Image("CrossWhite")
+                            
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                                .offset(x: -1)
+                                .padding()
+                                .background(
+                                    Circle()
+                                        .stroke(lineWidth: 1)
+                                        .fill(.white)
+                                        .background(
+                                            Circle()
+                                                .fill(Color.black)
+                                        )
+                                )
+                            
+                        }
+                        
+                        
+                        .padding(.leading, 30)
+                        
+                    }
+                    .offset(y: -40)
+                    
+                    
+                }
+                .offset(y: showDeleteSheet ? -50 : 10)
+                .opacity(showDeleteSheet ? 1.0 : 0.0)
+            }
+
+            //MARK: -Choose Color for newNote
             .overlay {
                 VStack {
                     ForEach(colors, id: \.self) { color in
@@ -436,8 +671,8 @@ extension NoteCollection {
         let set = notes as? Set<Note> ?? []
         
         return set.sorted {
-//            $0.time! < $1.time!
-            $0.name! < $1.name!
+            $0.time! < $1.time!
+//            $0.name! < $1.name!
         }
     }
     
@@ -445,8 +680,8 @@ extension NoteCollection {
         let set = favouriteNotes as? Set<Note> ?? []
         
         return set.sorted() {
-//            $0.time! < $1.time!
-            $0.name! < $1.name!
+            $0.time! < $1.time!
+//            $0.name! < $1.name!
         }
     }
     
